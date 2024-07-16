@@ -2,6 +2,15 @@ import numpy as np
 
 
 def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_costs=None):
+    """Calculate the similarity between two string, Based on levenshtein distance.
+    Custom insert/delete/replace costs on certain characters are available.
+        Args:
+            str, img2: Two images with the same size
+            bboxes ([cord1, cord2, cord3, cord4]): The focused(compared) part of the images.
+
+        Returns:
+            float: The difference ratio.
+    """
     if insert_costs is None:
         insert_costs = {}
     if delete_costs is None:
@@ -31,6 +40,6 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
                     edit_costs[2] = replace_costs[(str1[i - 1], str2[j - 1])]
                 elif (str2[j - 1], str1[i - 1]) in replace_costs:
                     edit_costs[2] = replace_costs[(str2[j - 1], str1[i - 1])]
-                dp_table[i][j] = min(dp_table[i - 1][j] + edit_costs[0], dp_table[i][j - 1] + edit_costs[1],
-                                     dp_table[i - 1][j - 1] + edit_costs[2])
+                dp_table[i][j] = min(int(dp_table[i - 1][j]) + edit_costs[0], int(dp_table[i][j - 1]) + edit_costs[1],
+                                     int(dp_table[i - 1][j - 1]) + edit_costs[2])
     return 1 - dp_table[n][m] / max(m, n)

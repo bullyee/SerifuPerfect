@@ -27,10 +27,13 @@ else:
 
 # setup buffer
 recent_text = ""
-recent_count = 0
+buffer_frame_index = 0
+frame_index = 0
 recent_conf = 0
 buffer = []
+in_between_buffer = []
 buffer.clear()
+in_between_buffer.clear()
 for frame in range(frame_count):
     # read the video frame by frame and use each 3 frame
     ret, img = vid.read()
@@ -55,32 +58,43 @@ for frame in range(frame_count):
         replace_cost = {("-", "一"): 0.2}
         sim = lev_dist.str_similarity(recent_text, text, insert_costs=insert_cost, delete_costs=delete_cost,
                                       replace_costs=replace_cost)
-        # if it finds new string, reset buffer and store new string.
+
+        # if small similarity, new string found. process the buffer and update the buffer.
         if sim < 0.8:
             # store images in buffer
-            os.makedirs(f"{output_folder}/{recent_text}", exist_ok=True)
-            for image in buffer:
-                cv2.imencode('.png', image)[1].tofile(f"{output_folder}/{recent_text}/{recent_text}{recent_count}.png")
-                recent_count -= 1
+            if recent_text != "":
+                os.makedirs(f"{output_folder}/{recent_text}", exist_ok=True)
+                for image in buffer:
+                    cv2.imencode('.png', image)[1].tofile(f"{output_folder}/{recent_text}/{buffer_frame_index}.png")
+                    buffer_frame_index += 1
             # reset buffer and put current image in buffer
             buffer.clear()
+            in_between_buffer.clear()
             recent_text = text
-            recent_count = 0
+            buffer_frame_index = frame_index
             recent_conf = conf
-            buffer.append(img)
             print("Got one: " + text + " confidence: " + str(conf))
-        # if similar, add the image to buffer and update text and conf if needed.
+        # if similar, add the in between buffer to buffer
+        # then, update text and conf if needed.
         else:
+            for img in in_between_buffer:
+                buffer.append(img)
+            in_between_buffer.clear()
             if conf > recent_conf:
+                print("Got one: " + text + " confidence: " + str(conf))
                 recent_text = text
                 recent_conf = conf
-            buffer.append(img)
-            recent_count += 1
+        buffer.append(img)
+    # no text detected, adds to in between buffer.
+    else:
+        in_between_buffer.append(img)
+    frame_index += 1
 
 # store images in buffer
-os.makedirs(f"{output_folder}/{recent_text}", exist_ok=True)
-for image in buffer:
-    cv2.imencode('.png', image)[1].tofile(f"{output_folder}/{recent_text}/{recent_text}{recent_count}.png")
-    recent_count -= 1
+if recent_text != "":
+    os.makedirs(f"{output_folder}/{recent_text}", exist_ok=True)
+    for image in buffer:
+        cv2.imencode('.png', image)[1].tofile(f"{output_folder}/{recent_text}/{buffer_frame_index}.png")
+        buffer_frame_index += 1
 
 vid.release()
