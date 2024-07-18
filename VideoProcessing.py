@@ -5,7 +5,7 @@ import sys
 import lev_dist
 
 # path variables set up
-vid_path = r"temp/13b.mp4"
+vid_path = r"temp/lost2.mp4"
 output_folder = r"result"
 if not os.path.exists(vid_path):
     print("請更改vid_path為你影片的儲存位置")
@@ -39,8 +39,8 @@ for frame in range(frame_count):
     ret, img = vid.read()
     if not ret:
         break
-    if frame % 3 != 0:
-        continue
+    # if frame % 3 != 0:
+    #     continue
 
     # crop the image where the subtitles might be
     img_height, img_width, _ = img.shape

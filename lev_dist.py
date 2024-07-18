@@ -5,11 +5,12 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
     """Calculate the similarity between two string, Based on levenshtein distance.
     Custom insert/delete/replace costs on certain characters are available.
         Args:
-            str, img2: Two images with the same size
-            bboxes ([cord1, cord2, cord3, cord4]): The focused(compared) part of the images.
-
+            str1, str2: two string to compare
+            insert_costs {character:cost}: the insert cost of certain character. default is 0.9
+            delete_costs {character:cost}: the deletion cost of certain character. default is 0.9
+            replacement_costs {(char1, char2):cost}: the replacement cost of certain characters. default is 1.
         Returns:
-            float: The difference ratio.
+            float: The similarity ratio.(-infinity to 1)
     """
     if insert_costs is None:
         insert_costs = {}
@@ -17,7 +18,7 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
         delete_costs = {}
     if replace_costs is None:
         replace_costs = {}
-    default_edit_costs = [1, 1, 1]  # insert, delete, replace
+    default_edit_costs = [0.9, 0.9, 1]  # insert, delete, replace
     n, m = len(str1), len(str2)
     dp_table = np.zeros((n + 1, m + 1))
 

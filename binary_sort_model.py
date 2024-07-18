@@ -38,9 +38,11 @@ prev_bboxes.clear()
 history_buffer.clear()
 process_buffer.clear()
 # setup string edit costs
-insert_cost = {" ": 0.1, ".": 0.2, "-": 0.2, "0": 0.2}
-delete_cost = {" ": 0.1, ".": 0.2, "-": 0.2, "0": 0.2}
-replace_cost = {("-", "一"): 0.2}
+insert_cost = {" ": 0.1, ".": 0.2, "-": 0.2, "0": 0.2, ":": 0.2, "!": 0.2, "%": 0.2, ")": 0.2, "(": 0.2, "=": 0.2,
+               ";": 0.2}
+delete_cost = {" ": 0.1, ".": 0.2, "-": 0.2, "0": 0.2, ":": 0.2, "!": 0.2, "%": 0.2, ")": 0.2, "(": 0.2, "=": 0.2,
+               ";": 0.2}
+replace_cost = {("-", "一"): 0.2, ("哦", "我"): 0.2, ("]", "因"): 0.2, ("哦", "我"): 0.2}
 # loop through the entire video
 for frame_index in range(frame_count):
     # read the video frame by frame and use each 3 frame
@@ -76,8 +78,8 @@ for frame_index in range(frame_count):
         # check if box aligned in middle
         left = bbox[0][0]
         right = bbox[2][0]
-        mid = (left+right)//2
-        if mid > 0.7*width or mid < 0.3*width:
+        mid = (left + right) // 2
+        if mid > 0.7 * width or mid < 0.3 * width:
             continue
         curr_text += text
         curr_bboxes.append(bbox)

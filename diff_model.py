@@ -4,11 +4,9 @@ import easyocr
 import re
 from frame import frame_diff
 
-
-img = cv2.imread("temp/test.png")
 reader = easyocr.Reader(['ch_tra'])
 
-vid = cv2.VideoCapture("temp/13b.mp4")
+vid = cv2.VideoCapture("temp/lost2.mp4")
 if not vid.isOpened():
     raise FileNotFoundError("Please check your input video path.")
 
