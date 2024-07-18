@@ -47,7 +47,7 @@ for frame in range(frame_count):
     corp_img = img[int(img_height * 0.75):img_height, int(0.2 * img_width):int(0.8*img_width)]
     # convert image to RGB for easyocr to read
     ocr_img = cv2.cvtColor(corp_img, cv2.COLOR_BGR2RGB)
-    text, conf = ezocr.image2text(cv2.cvtColor(ocr_img, cv2.COLOR_BGR2RGB))  # OCR
+    text, conf = ezocr.image2text(ocr_img)  # OCR
     text = re.sub(r'[<>:"/\\|?*.]', '', text)  # clear bad filename characters
     print(f"current frame: {frame}")
     # check if got something in OCR
