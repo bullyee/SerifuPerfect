@@ -20,7 +20,7 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
         delete_costs = {}
     if replace_costs is None:
         replace_costs = {}
-    default_edit_costs = [0.9, 0.9, 1]  # insert, delete, replace
+    default_edit_costs = [1.2, 1.2, 1]  # insert, delete, replace
     n, m = len(str1), len(str2)
     dp_table = np.zeros((n + 1, m + 1))
 

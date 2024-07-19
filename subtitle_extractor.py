@@ -4,6 +4,7 @@ import cv2
 import easyocr
 from frame import *
 from lev_dist import *
+import re
 
 
 class SubtitleExtractor:
@@ -28,6 +29,10 @@ class SubtitleExtractor:
     delete_cost = {" ": 0.2, ".": 0.5, "-": 0.5, "0": 0.5, ":": 0.8, "!": 0.8, "%": 0.5, ")": 0.8, "(": 0.8, "=": 0.5,
                    ";": 0.8, "_": 2}
     replace_cost = {("-", "一"): 0.5, ("哦", "我"): 0.5, ("]", "因"): 0.5, ("哦", "我"): 0.5}
+    # other stuff
+    thread_count = 8
+    progress_bar = False
+    accuracy_enhance = 0
 
     # video Processing attributes
     def __init__(self, video_path, output_path):
@@ -59,6 +64,7 @@ class SubtitleExtractor:
                 history_buffer.append(Frame(curr_frame_img, frame_index))
                 continue
 
+            print(frame_index)
             curr_frame = Frame(curr_frame_img, frame_index)
             self.__frame_ocr(curr_frame)
 
@@ -66,8 +72,6 @@ class SubtitleExtractor:
             if buffer_frame is None:
                 buffer_frame = curr_frame
                 continue
-            print(f"{curr_frame.index}: {curr_frame.text}, {curr_frame.confidence}, buffer text: {buffer_frame.text}")
-
             # No text detected
             if curr_frame.text is None:
                 if buffer_frame.text is not None:
@@ -93,8 +97,6 @@ class SubtitleExtractor:
                     # clear history buffer and set buffer representation frame
                     history_buffer.clear()
                     buffer_frame = curr_frame
-                print(
-                    f"{curr_frame.text}, {buffer_frame.text} similarity: {str_similarity(buffer_frame.text, curr_frame.text, insert_costs=self.insert_cost, delete_costs=self.delete_cost, replace_costs=self.replace_cost)}")
                 # buffer has text != current text
                 if str_similarity(buffer_frame.text, curr_frame.text, insert_costs=self.insert_cost,
                                   delete_costs=self.delete_cost,
@@ -103,7 +105,6 @@ class SubtitleExtractor:
                     end_index = self.__binary_search(process_buffer[-1], history_buffer, "end")
                     process_buffer += history_buffer[:end_index + 1]
                     # store images
-                    print("got different text")
                     self.__save_images(buffer_frame, process_buffer)
                     process_buffer.clear()
                     # search for current subtitle start frame
@@ -123,12 +124,13 @@ class SubtitleExtractor:
 
     def __save_images(self, example_frame, frames):
         root_dir = example_frame.text
+        root_dir = re.sub(r'[<>:"/\\|?*.]', '', root_dir)
         os.makedirs(f"{self.output_folder_path}/{root_dir}", exist_ok=True)
 
         def save_image(path, image):
             cv2.imencode('.png', image)[1].tofile(f"{path}.png")
 
-        with ThreadPoolExecutor(max_workers=2) as pool_executor:
+        with ThreadPoolExecutor(max_workers=self.thread_count) as pool_executor:
             futures = []
             for frame in frames:
                 frame_path = f"{self.output_folder_path}/{root_dir}/{frame.index}"
@@ -217,7 +219,10 @@ class SubtitleExtractor:
                mid_attention=None,
                insert_costs=None,
                delete_costs=None,
-               replace_costs=None):
+               replace_costs=None,
+               thread_count=None,
+               progress_bar=None,
+               accuracy_enhance=None):
         if ocr_accept_threshold is not None:
             self.ocr_accept_threshold = ocr_accept_threshold
         if str_diff_threshold is not None:
@@ -234,3 +239,9 @@ class SubtitleExtractor:
             self.delete_cost = delete_costs
         if replace_costs is not None:
             self.replace_cost = replace_costs
+        if thread_count is not None:
+            self.thread_count = thread_count
+        if progress_bar is not None:
+            self.progress_bar = progress_bar
+        if accuracy_enhance is not None:
+            self.accuracy_enhance = accuracy_enhance
