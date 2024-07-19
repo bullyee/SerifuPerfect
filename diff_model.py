@@ -2,7 +2,7 @@ import os
 import cv2
 import easyocr
 import re
-from frame import frame_diff
+from frameOps import frame_diff
 
 reader = easyocr.Reader(['ch_tra'])
 

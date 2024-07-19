@@ -12,6 +12,8 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
         Returns:
             float: The similarity ratio.(-infinity to 1)
     """
+    str1 = str(str1).replace(" ","")
+    str2 = str(str2).replace(" ","")
     if insert_costs is None:
         insert_costs = {}
     if delete_costs is None:
@@ -43,4 +45,4 @@ def str_similarity(str1, str2, insert_costs=None, delete_costs=None, replace_cos
                     edit_costs[2] = replace_costs[(str2[j - 1], str1[i - 1])]
                 dp_table[i][j] = min(int(dp_table[i - 1][j]) + edit_costs[0], int(dp_table[i][j - 1]) + edit_costs[1],
                                      int(dp_table[i - 1][j - 1]) + edit_costs[2])
-    return 1 - dp_table[n][m] / max(m, n)
+    return 1 - dp_table[n][m] / min(m, n)
