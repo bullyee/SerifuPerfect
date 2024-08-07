@@ -1,4 +1,6 @@
 # Serifu Perfect
+# This project is currently suspended.
+## I gotta find a GPU for my OCR process. Using only i5-7200U and integrated graphics to run OCR pipeline is such a pain in the neck.
 
 ## Dependencies:
 > opencv-python
